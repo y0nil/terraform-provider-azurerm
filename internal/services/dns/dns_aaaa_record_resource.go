@@ -59,7 +59,7 @@ func resourceDnsAAAARecord() *pluginsdk.Resource {
 					ValidateFunc: validation.IsIPv6Address,
 				},
 				Set:           set.HashIPv6Address,
-				ConflictsWith: []string{"target_resource_id"},
+				ExactlyOneOf: []string{"target_resource_id", "records"},
 			},
 
 			"ttl": {
@@ -78,7 +78,7 @@ func resourceDnsAAAARecord() *pluginsdk.Resource {
 				Type:          pluginsdk.TypeString,
 				Optional:      true,
 				ValidateFunc:  azure.ValidateResourceID,
-				ConflictsWith: []string{"records"},
+				ExactlyOneOf: []string{"target_resource_id", "records"},
 			},
 		},
 	}
@@ -126,11 +126,6 @@ func resourceDnsAaaaRecordCreateUpdate(d *pluginsdk.ResourceData, meta interface
 
 	if targetResourceId != "" {
 		parameters.RecordSetProperties.TargetResource.ID = utils.String(targetResourceId)
-	}
-
-	// TODO: this can be removed when the provider SDK is upgraded
-	if targetResourceId == "" && len(recordsRaw) == 0 {
-		return fmt.Errorf("One of either `records` or `target_resource_id` must be specified")
 	}
 
 	eTag := ""

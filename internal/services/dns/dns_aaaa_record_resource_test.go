@@ -128,14 +128,14 @@ func TestAccAzureRMDnsAAAARecord_RecordsToAlias(t *testing.T) {
 
 	data.ResourceTest(t, r, []acceptance.TestStep{
 		{
-			Config: r.AliasToRecordsUpdate(data),
+			Config: r.aliasToRecordsUpdate(data),
 			Check: acceptance.ComposeTestCheckFunc(
 				check.That(data.ResourceName).ExistsInAzure(r),
 				check.That(data.ResourceName).Key("records.#").HasValue("2"),
 			),
 		},
 		{
-			Config: r.AliasToRecords(data),
+			Config: r.aliasToRecords(data),
 			Check: acceptance.ComposeTestCheckFunc(
 				check.That(data.ResourceName).ExistsInAzure(r),
 				acceptance.TestCheckResourceAttrPair(data.ResourceName, "target_resource_id", targetResourceName, "id"),
@@ -153,14 +153,14 @@ func TestAccAzureRMDnsAaaaRecord_AliasToRecords(t *testing.T) {
 
 	data.ResourceTest(t, r, []acceptance.TestStep{
 		{
-			Config: r.AliasToRecords(data),
+			Config: r.aliasToRecords(data),
 			Check: acceptance.ComposeTestCheckFunc(
 				check.That(data.ResourceName).ExistsInAzure(r),
 				acceptance.TestCheckResourceAttrPair(data.ResourceName, "target_resource_id", targetResourceName, "id"),
 			),
 		},
 		{
-			Config: r.AliasToRecordsUpdate(data),
+			Config: r.aliasToRecordsUpdate(data),
 			Check: acceptance.ComposeTestCheckFunc(
 				check.That(data.ResourceName).ExistsInAzure(r),
 				check.That(data.ResourceName).Key("records.#").HasValue("2"),
@@ -404,7 +404,7 @@ resource "azurerm_dns_aaaa_record" "test" {
 `, data.RandomInteger, data.Locations.Primary, data.RandomInteger, data.RandomInteger, data.RandomInteger)
 }
 
-func (DnsAAAARecordResource) AliasToRecords(data acceptance.TestData) string {
+func (DnsAAAARecordResource) aliasToRecords(data acceptance.TestData) string {
 	return fmt.Sprintf(`
 provider "azurerm" {
   features {}
@@ -438,7 +438,7 @@ resource "azurerm_dns_aaaa_record" "test" {
 `, data.RandomInteger, data.Locations.Primary, data.RandomInteger, data.RandomInteger, data.RandomInteger)
 }
 
-func (DnsAAAARecordResource) AliasToRecordsUpdate(data acceptance.TestData) string {
+func (DnsAAAARecordResource) aliasToRecordsUpdate(data acceptance.TestData) string {
 	return fmt.Sprintf(`
 provider "azurerm" {
   features {}

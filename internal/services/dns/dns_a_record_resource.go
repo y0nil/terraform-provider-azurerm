@@ -53,7 +53,7 @@ func resourceDnsARecord() *pluginsdk.Resource {
 				Optional:      true,
 				Elem:          &pluginsdk.Schema{Type: pluginsdk.TypeString},
 				Set:           pluginsdk.HashString,
-				ConflictsWith: []string{"target_resource_id"},
+				ExactlyOneOf: []string{"target_resource_id", "records"},
 			},
 
 			"ttl": {
@@ -70,9 +70,7 @@ func resourceDnsARecord() *pluginsdk.Resource {
 				Type:          pluginsdk.TypeString,
 				Optional:      true,
 				ValidateFunc:  azure.ValidateResourceID,
-				ConflictsWith: []string{"records"},
-
-				// TODO: switch ConflictsWith for ExactlyOneOf when the Provider SDK's updated
+				ExactlyOneOf: []string{"target_resource_id", "records"},
 			},
 
 			"tags": tags.Schema(),
@@ -122,11 +120,6 @@ func resourceDnsARecordCreateUpdate(d *pluginsdk.ResourceData, meta interface{})
 
 	if targetResourceId != "" {
 		parameters.RecordSetProperties.TargetResource.ID = utils.String(targetResourceId)
-	}
-
-	// TODO: this can be removed when the provider SDK is upgraded
-	if targetResourceId == "" && len(recordsRaw) == 0 {
-		return fmt.Errorf("One of either `records` or `target_resource_id` must be specified")
 	}
 
 	eTag := ""

@@ -52,7 +52,7 @@ func resourceDnsCNameRecord() *pluginsdk.Resource {
 			"record": {
 				Type:          pluginsdk.TypeString,
 				Optional:      true,
-				ConflictsWith: []string{"target_resource_id"},
+				ExactlyOneOf: []string{"target_resource_id", "records"},
 			},
 
 			"ttl": {
@@ -69,7 +69,7 @@ func resourceDnsCNameRecord() *pluginsdk.Resource {
 				Type:          pluginsdk.TypeString,
 				Optional:      true,
 				ValidateFunc:  azure.ValidateResourceID,
-				ConflictsWith: []string{"record"},
+				ExactlyOneOf: []string{"target_resource_id", "records"},
 			},
 
 			"tags": tags.Schema(),
@@ -123,11 +123,6 @@ func resourceDnsCNameRecordCreateUpdate(d *pluginsdk.ResourceData, meta interfac
 
 	if targetResourceId != "" {
 		parameters.RecordSetProperties.TargetResource.ID = utils.String(targetResourceId)
-	}
-
-	// TODO: this can be removed when the provider SDK is upgraded
-	if record == "" && targetResourceId == "" {
-		return fmt.Errorf("One of either `record` or `target_resource_id` must be specified")
 	}
 
 	eTag := ""
