@@ -60,6 +60,8 @@ func dataSourceArmClientConfigRead(d *pluginsdk.ResourceData, meta interface{}) 
 		if listResult.Values() == nil || len(listResult.Values()) != 1 {
 			return fmt.Errorf("Unexpected Service Principal query result: %#v", listResult.Values())
 		}
+
+		// todo we are not doing anything with tis result??
 	}
 
 	d.SetId(time.Now().UTC().String())
