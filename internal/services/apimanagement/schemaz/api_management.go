@@ -366,7 +366,7 @@ func SchemaApiManagementOperationParameterExampleContract() *pluginsdk.Schema {
 				"value": {
 					Type:             pluginsdk.TypeString,
 					Optional:         true,
-					DiffSuppressFunc: exampleSuppressEquivalentJSONDiffs,
+					DiffSuppressFunc: pluginsdk.SuppressJsonDiff,
 				},
 
 				"external_value": {
@@ -440,10 +440,19 @@ func FlattenApiManagementOperationParameterExampleContract(input map[string]*api
 		// value can be any type, may be a primitive value or an object
 		// https://github.com/Azure/azure-sdk-for-go/blob/main/services/apimanagement/mgmt/2021-08-01/apimanagement/models.go#L10236
 		if v.Value != nil {
-			value, err := convert2Json(v.Value)
-			if err != nil {
-				return nil, err
+			//value, err := convert2Json(v.Value)
+
+			value := ""
+			if val, ok := v.Value.(string); ok {
+				value = val
+			} else {
+				val, err := json.Marshal(v.Value)
+				if err != nil {
+					return nil, fmt.Errorf("failed to marshal `representations.examples.value` to json: %+v", err)
+				}
+				value = string(val)
 			}
+
 			output["value"] = value
 		}
 
