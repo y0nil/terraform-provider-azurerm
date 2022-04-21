@@ -181,6 +181,28 @@ func azureProvider(supportLegacyTestSuite bool) *schema.Provider {
 				Description: "The path to a custom endpoint for Managed Service Identity - in most circumstances this should be detected automatically. ",
 			},
 
+			// OIDC auth specific fields
+			"use_oidc": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("ARM_USE_OIDC", false),
+				Description: "Allow OIDC to be used for authentication",
+			},
+
+			"oidc_request_url": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{"ARM_OIDC_REQUEST_URL", "ACTIONS_ID_TOKEN_REQUEST_URL"}, ""),
+				Description: "The URL for the OIDC provider from which to request an ID token",
+			},
+
+			"oidc_request_token": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{"ARM_OIDC_REQUEST_TOKEN", "ACTIONS_ID_TOKEN_REQUEST_TOKEN"}, ""),
+				Description: "The bearer token for the request to the OIDC provider",
+			},
+
 			// Managed Tracking GUID for User-agent
 			"partner_id": {
 				Type:         schema.TypeString,
@@ -255,20 +277,23 @@ func providerConfigure(p *schema.Provider) schema.ConfigureContextFunc {
 		}
 
 		builder := &authentication.Builder{
-			SubscriptionID:     d.Get("subscription_id").(string),
-			ClientID:           d.Get("client_id").(string),
-			ClientSecret:       d.Get("client_secret").(string),
-			TenantID:           d.Get("tenant_id").(string),
-			AuxiliaryTenantIDs: auxTenants,
-			Environment:        d.Get("environment").(string),
-			MetadataHost:       metadataHost,
-			MsiEndpoint:        d.Get("msi_endpoint").(string),
-			ClientCertPassword: d.Get("client_certificate_password").(string),
-			ClientCertPath:     d.Get("client_certificate_path").(string),
+			SubscriptionID:      d.Get("subscription_id").(string),
+			ClientID:            d.Get("client_id").(string),
+			ClientSecret:        d.Get("client_secret").(string),
+			TenantID:            d.Get("tenant_id").(string),
+			AuxiliaryTenantIDs:  auxTenants,
+			Environment:         d.Get("environment").(string),
+			MetadataHost:        metadataHost,
+			MsiEndpoint:         d.Get("msi_endpoint").(string),
+			ClientCertPassword:  d.Get("client_certificate_password").(string),
+			ClientCertPath:      d.Get("client_certificate_path").(string),
+			IDTokenRequestURL:   d.Get("oidc_request_url").(string),
+			IDTokenRequestToken: d.Get("oidc_request_token").(string),
 
 			// Feature Toggles
 			SupportsClientCertAuth:         true,
 			SupportsClientSecretAuth:       true,
+			SupportsOIDCAuth:               d.Get("use_oidc").(bool),
 			SupportsManagedServiceIdentity: d.Get("use_msi").(bool),
 			SupportsAzureCliToken:          true,
 			SupportsAuxiliaryTenants:       len(auxTenants) > 0,
