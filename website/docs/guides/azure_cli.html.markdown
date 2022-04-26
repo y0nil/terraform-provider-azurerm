@@ -12,6 +12,7 @@ Terraform supports a number of different methods for authenticating to Azure:
 
 * Authenticating to Azure using the Azure CLI (which is covered in this guide)
 * [Authenticating to Azure using Managed Service Identity](managed_service_identity.html)
+* [Authenticating to Azure using OIDC](oidc.html)
 * [Authenticating to Azure using a Service Principal and a Client Certificate](service_principal_client_certificate.html)
 * [Authenticating to Azure using a Service Principal and a Client Secret](service_principal_client_secret.html)
 
